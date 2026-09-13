@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LTR Bot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body{
+            background-color: #0b4536;
+            color: #f4fae4;
+            font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;
+            font-style: normal;
+            font-variant: normal;
+        }
+        
+        h1{
+            font-size: 10vw;
+        }
+        h2{
+            font-size: 7vw;
+        }
+
+        section {
+  width: 100%;
+  /*   skew adds a 4.76 degree slope and the translateY equation is based on the fact that a 4.76 degree slope has a gradient of 1:12 */
+  -webkit-transform: skew(0, -4.76deg) translateY(calc(50vw/-12));
+      -ms-transform: skew(0, -4.76deg) translateY(calc(50vw/-12));
+          transform: skew(0, -4.76deg) translateY(calc(50vw/-12));
+  /*   And finally we account for the slope to make sure each section can occupy the full window... I added 10vw just to give it a little extra padding */
+  min-height: calc(10vh - (10vw/-12));
+}
+
+section:not(:last-child) *{
+  -webkit-transform: skew(0, 4.76deg) translateY(calc(50vw/12));
+      -ms-transform: skew(0, 4.76deg) translateY(calc(50vw/12));
+          transform: skew(0, 4.76deg) translateY(calc(50vw/12));
+  margin-top: calc(10vw/-12);
+}
+  
+section:last-child {
+  position: relative;
+  -webkit-transform: skew(0);
+      -ms-transform: skew(0);
+          transform: skew(0);
+  margin-top: calc(10vw/-12);
+  padding-top: calc(10vw/12);
+  min-height: 10vh;
+  z-index: -1;
+}
+
+
+
+
+
+/* COLORS AND OTHER STYLES TO ILLUSTRATE SECTIONS */
+section:nth-child(1) {
+  background-color: #e7eae7;
+}
+section:nth-child(2) {
+  background-color: #c8f34c;
+}
+section:nth-child(3) {
+  background-color: #0b4536;
+}
+section:nth-child(4) {
+  background-color: #0b4536;
+}
+
+
+section{
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+
+
+
+    </style>
+    
+
+    <script>
+        var example = ['Bidding War', 'Gif War', 'Photo Gallery', 'AutoMod', 'And More'];
+
+        textSequence(0);
+        function textSequence(i) {
+
+            if (example.length > i) {
+                setTimeout(function() {
+                    document.getElementById("sequence").innerHTML = example[i];
+                    textSequence(++i);
+                }, 1000); // 1 second (in milliseconds)
+
+            } else if (example.length == i) { // Loop
+                textSequence(0);
+            }
+
+        }
+    </script>
+
+
+
+</head>
+
+
+
+
+<body style="font-family: Century Gothic, CenturyGothic, AppleGothic, sans-serif;"">
+    <img src="banner.png" width="100%">  
+    <br><br><br>
+    
+    <div class="section-container">
+    <section>
+        <br>
+    </section>
+
+    <section>
+        <br>
+    </section>
+
+    <h2>Serving the community</h2>
+    <div id="sequence" style="font-size: 5vw; font-family: monospace;"></div>
+    <br><br><br>
+    
+    <h3 style="font-size: 4vw;">LTR Bot is the resident LTR Trains server discord bot, providing features which support many of the
+        fun channels in the server, as well as providing a level of automoderation. Features originally part of Networker Bot got moved into
+        the servers own dedicated bot.   </h3>
+
+    <br><br><br><br>
+
+
+</body>
+
+<footer>
+  <p>Made by: amphibious_rock on discord</p>
+  <p><a style="color:#e7eae7" href="url:privacy-policy">Privacy Policy</a></p>
+  <p><a style="color:#e7eae7" href="url:privacy-policy">Terms and Conditions</a></p>
+</footer>
+
+</html>
