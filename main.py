@@ -31,6 +31,8 @@ TOKEN = config["keys"]["discord_token"]
 
 global status_quote
 global old_status_quote
+global last_polled
+last_polled = 0
 status_quote = "Subscribe to LTR Trains!"
 old_status_quote = "Subscribe to LTR Trains!"
 
@@ -84,12 +86,57 @@ def printdev(x):
     if dev_mode == True:
         print(x)
 
-@tasks.loop(minutes=15)
+@tasks.loop(minutes=5)
 async def rotate_status():
     if True:#status_quote != old_status_quote:
+        
+        global last_polled
+        global status_quote
+        
         await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=status_quote))
         #print("Status Changed:\n"+old_status_quote+"-->"+status_quote)
         #old_status_quote = status_quote
+        
+        now = datetime.now()
+        day = now.strftime("%A")
+        hour=int(now.strftime("%H"))
+        
+        
+        message=["<@"+str(config['ltr']['usr_id_panto'])+"> <@"+str(config['ltr']['usr_id_smallmac'])+"> Time to close bidding!!!!!!\n-# you can use /bidding_war_end in the bidding war channel to change permissions",
+                 "<@"+str(config['ltr']['usr_id_panto'])+"> <@"+str(config['ltr']['usr_id_smallmac'])+"> Time to open up bidding!!!!!!\n-# you can use /bidding_war_start in the bidding war channel to change permissions",
+                 "## Bids are closed! Please react to your favourite bids <:LTRT:1358179657203056707>. <@&"+str(config['ltr']['role_biddingwarpings'])+">"]
+       
+        if hour > last_polled and hour == 18:
+            if day == "Friday":
+                print("end")
+                #channel_id = config['ltr']['bidding_war_items'] #bidding war items ticket
+                #channel = await bot.fetch_channel(channel_id)
+                #message = await channel.send(message[0])
+                
+                channel_id = config['ltr']['bidding_war'] #bidding war items ticket
+                
+                
+                channel = await bot.fetch_channel(channel_id)
+                server = await bot.fetch_guild(config['ltr']['server'])
+                try:
+                    perms = channel.overwrites_for(server.default_role)
+                    perms.send_messages=False
+                    await channel.set_permissions(server.default_role, overwrite=perms)
+                except Exception as e:
+                    print("everybody panic it went wrong ",e)
+                message = await channel.send(message[2])
+                
+            elif day == "Sunday":
+                print("start")
+                channel_id = config['ltr']['bidding_war_items'] #bidding war items ticket
+                channel = await bot.fetch_channel(channel_id)
+                message = await channel.send(message[1])
+        
+        last_polled=int(now.strftime("%H"))
+        
+        
+        
+        
 
 
 def ltr_verify(interaction):
@@ -105,6 +152,28 @@ def executed(interaction,command,extra=""):
     now = datetime.now()
     time = now.strftime("%d/%m/%y %H:%M:%S")
     print(Fore.GREEN+str(command)+" executed by ",user,"at",time,"Message ID:",interaction.id,Fore.RESET,extra)
+
+
+# Custom styling
+
+GUILD_ID = str(config["bot"]["support_server"]) #support
+GUILD_ID_2 = str(config["ltr"]["server"]) #ltr
+
+API = "https://discord.com/api/v10"
+HEADERS = {"Authorization": f"Bot {TOKEN}"}
+
+import requests
+
+requests.patch(
+    f"https://discord.com/api/v10/guilds/{GUILD_ID}/members/@me",
+    headers={"Authorization": f"Bot {TOKEN}"},
+    json={"display_name_font_id": 6, "display_name_effect_id": 2, "display_name_colors": [615993,615993,615993,14875981,14875981]})
+sleep(1.5)
+requests.patch(
+    f"https://discord.com/api/v10/guilds/{GUILD_ID_2}/members/@me",
+    headers={"Authorization": f"Bot {TOKEN}"},
+    json={"display_name_font_id": 6, "display_name_effect_id": 2, "display_name_colors": [615993,615993,615993,14875981,14875981]})
+
 
 @bot.event
 async def on_ready():
@@ -340,3 +409,4 @@ flask_thread.start()
 #print(Fore.RED + "Flask server disabled, uncomment to run again once fixed ⚠️")
 (Fore.GREEN + "Flask server Enabled, comment to disable again")
 bot.run(TOKEN)
+
