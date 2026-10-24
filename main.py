@@ -123,15 +123,16 @@ async def rotate_status():
                     perms.send_messages=False
                     await channel.set_permissions(server.default_role, overwrite=perms)
                 except Exception as e:
-                    print("everybody panic it went wrong ",e)
+                    print(Fore.RED+Style.BRIGHT+"everybody panic it went wrong ",e,Fore.RESET,Style.NORMAL)
                 message = await channel.send(message[2])
+                print(Fore.CYAN + "BIDDING HAS ENDED" + Fore.RESET)
                 
             elif day == "Sunday":
                 print("start")
                 channel_id = config['ltr']['bidding_war_items'] #bidding war items ticket
                 channel = await bot.fetch_channel(channel_id)
                 message = await channel.send(message[1])
-        
+                print(Fore.CYAN + "Its Sunday My Dudes. Its Bidding Time." + Fore.RESET)
         last_polled=int(now.strftime("%H"))
         
         
@@ -257,7 +258,7 @@ async def on_message(message):
                 
                 channel = await bot.fetch_channel(message.channel.id)
                 await channel.send("Only gifs/images may be sent in this channel.", delete_after=3.0)
-                print("LTR: Deleted non media message in gif war")
+                print(Fore.YELLOW+"LTR: Deleted non media message in gif war"+Fore.RESET)
                     
             
           
