@@ -205,7 +205,127 @@ async def on_ready():
         print(guild.name,guild.id)
     print(Fore.YELLOW+"Ready\n"+Fore.RESET)
     print(Style.NORMAL)
+
+
+
+async def add_role(role_id,guild,user_arr):
+
+    for l in user_arr:
+        member = guild.get_member(int(l)) #self explanatory really
+        if member is None:
+            member = await guild.fetch_member(int(l))
     
+        if member:
+            role = guild.get_role(role_id) #Fetch Winner Role 1562761400776925234
+        else:
+            print(Fore.Red+"add_role error: role isnt a thing apparently. start screaming."+Fore.RESET) #Screaming Intensifies
+        if role:
+            await member.add_roles(role) #Add ye role 
+            print(member, "has been added to role",role_id, end=" ")
+        else:
+            print(Fore.Red+"Uhhh role isnt a thing apparently."+Fore.RESET) #Screaming Intensifies
+    #print("egg")
+
+async def remove_role(role_id,guild,user_arr):
+
+    for l in user_arr:
+        member = guild.get_member(int(l)) #self explanatory really
+        if member is None:
+            member = await guild.fetch_member(int(l))
+    
+        if member:
+            role = guild.get_role(role_id) #Fetch Winner Role 1562761400776925234
+        else:
+            print(Fore.Red+"add_role error: role isnt a thing apparently. start screaming."+Fore.RESET) #Screaming Intensifies
+        if role:
+            await member.remove_roles(role) #remove ye role 
+            print(member, "has been removed from role",role_id, end=" ")
+        else:
+            print(Fore.Red+"Uhhh role isnt a thing apparently."+Fore.RESET) #Screaming Intensifies
+
+
+async def bidding_war_submissions(submission):
+    #submission format = "user_id,submission"
+    file = open("bid_submissions.txt","rt")
+    data = []
+    for i in file:
+        if len(i) > 2:
+            data.append(i.strip("\n"))
+    file.close()
+
+    submissions = 0
+    winners = 0
+
+    submissions = int(data[0].split("/")[0])+1
+    winners = int(data[0].split("/")[1])
+    
+
+    #print(submissions,winners)
+    data[0] = (f"{submissions}/{winners}\n")
+    #print("data",data)
+    data.append("\n"+submission+"\n")
+
+    file = open("bid_submissions.txt","wt")
+    for b in data:
+        file.write(b+"\n")
+    file.close()
+    print(submissions,winners,submissions==winners)
+    if submissions == winners:
+        # START BIDDING WAR
+        print(Fore.GREEN+"start bidding war"+Fore.RESET)
+
+
+        #start coding hereee.
+        channel = await bot.fetch_channel(1488983500551098398)#test 1543878894422069298)
+        file= open("bid_submissions.txt","rt")
+        data = []
+        print(data)
+        
+        
+
+        for i in file:
+            if len(i) > 2:
+                data.append(i.strip("\n"))
+        print(data)
+        data.pop(0)
+        
+        msg = "# Bidding War; Round n+1\n**Items for auction:**\n\n"
+        for n in data:
+            msg = msg+" - "+n.split(",")[1]+"\n"
+
+        bidding_quotes=["On your marks, get set, bake!","Wigan NorthWestern","Welcome aboard this avanti west coast service to bidingham new street","Its dark in here",
+                        "With great power comes great electricity bill","If there is a hole there is a goal","Shuddup skiiiiiii","To confuse your enemy first you must confuse yourself",
+                        "UwU",":3 prr","Better to poo in the sink than to sink in the poo","greggs","sausage roll","TPWS and AWS Operational","The bluetooth device is ready to pair",
+                        "Leaton :uh_oh:","T R A C T O R","Mega thrash, Mega Bash","If you can prove that this footer has been used twice you get to pick the replacement text here",
+                        "You are going to brazil","fuh you firstbus","Arriva","TfL offers their condolences","Network SouthEast","Do robots dream of electric sheep?",
+                        "Tax Fraud","This service has been cancelled due to leaves on the line","This service has been cancelled due to a brake fault",
+                        "This brake fault has been cancelled due to a service","This service is for E L E P H A N T and Castle","Ghost Trains",
+                        "You'll be going nowhere","Error 418 I'm a teapot'","Pardon you said","kettle","may your pillow be cool on both sides","Clubcard Accepted",
+                        "E","This auction was brought to you by raid shadow legends","Goodness gracious me","The animatronics get a little bit quirky at night"]
+        
+        msg+="\nFor rules, see pinned messages\n-# "+bidding_quotes[randint(0,len(bidding_quotes)-1)]+"\n|| <@&1488987567692058744>  ||"
+        #msg = "Imagine I have done a thing."
+        await channel.send(msg)
+        
+         
+        guild = await bot.fetch_guild(1355092715179737099)
+        perms = channel.overwrites_for(guild.default_role)
+        perms.send_messages=True
+        await channel.set_permissions(guild.default_role, overwrite=perms)
+    
+        response = "Bidding has started, Let the bidding begin!"
+        await channel.send(response)
+
+
+def bidding_war_winners(winners):
+    file = open("bid_submissions.txt","wt") # OVERWRITE
+    winner_count = len(winners)
+    file.write(f"0/{winner_count}\n")
+    file.close()
+
+    #UN ADDED
+
+
 
 @bot.event
 async def on_message(message):
@@ -272,12 +392,27 @@ async def on_message(message):
                         break
             
                 if not message.attachments and (not isimage) and not ( bypass in ["Mod","Bot"]) : #and message.author == discord.client.User:
-                    await message.delete()
                     channel_id = channel_gallery
                     channel = await bot.fetch_channel(channel_id)
-                    message = await channel.send("Only photos may be sent in this channel.", delete_after=3.0)
+                    del_content = message.content
+                    del_auth_nick = message.author.nick
+                    try:
+                        message_og = await channel.fetch_message(message.reference.message_id)
+                        thread = await channel.create_thread(name=str(del_content),message=message_og)
+                        await thread.send(str(del_auth_nick)+' said; '+str(del_content))
+                    except Exception:
+                        print("non reply")
+                    
+                    
+                    await message.delete()
+                    
+                    await channel.send("Only photos may be sent in this channel.", delete_after=3.0)
+                    
                     print("LTR: Deleted non media message in photo gallery")
-        
+                    
+                    
+                    
+                    
             #print(message.author.name,message)
             if message.author.name in banned_bots and message.author.bot == True:
                 print(Fore.RED+"Message from "+str(message.author.name)+" deleted. Reason: Banned bot."+Fore.RESET)
@@ -285,7 +420,7 @@ async def on_message(message):
                 
             if message.channel.id in bidding_war and message.author.bot == False:
                 
-                if bypass == "None":
+                if bypass == "None" and message.author.id != 1248524299657285668:
                     bid = message.content
             
                     bid = bid.lower()
@@ -300,8 +435,64 @@ async def on_message(message):
                         await message.delete()
                         channel_id = config["ltr"]["bidding_war"] #bidding war channel
                         channel = await bot.fetch_channel(channel_id)
-                        message = await channel.send("I bid that **bids must start with\"I bid.\"**", delete_after=3.0)
+                        message = await channel.send("I bid that **bids must start with \"I bid.\"**", delete_after=3.0)
+                print(bypass,"this better be bid when its meant to")
+                if bypass == "Bid":# or True: #Put bidding war controls role here, trust.
+                    bid = message.content
+                    bid = bid.lower()
             
+                
+                    # Verificactions here
+                    announcement = False #contains # Bidding War; Round
+                    end = False
+                
+                    announcement = "# bidding war; round" in bid
+                    end = "winners" in bid
+                
+                    winners=[]
+                
+                    if announcement and end:
+                        x = re.findall("- <@.*>", bid) # Fetch all winners.
+                
+                        if len(x) > 0:
+                            #print("bidding war end")
+                
+                            for j in x:
+                                #print(j)
+                                k = j.split(" ")[1].strip("<@").strip(">") #Extract the user ID of the winners. FIRST mention of each line.
+                                #print(k)
+                                winners.append(k) #Adds to array cuz you need to
+                        print(Fore.CYAN+"Bidding War Winners: ",Fore.RESET,winners) # Cheeky bit of logs action here
+                        guild = message.guild
+                                
+                        bidding_war_winners(winners) # Update TXT file
+                                
+                        #1562761400776925234) # test Winner Role
+                        await add_role(1562773248008126464,guild,winners)
+                
+                        # test 1562769865847078932 Send message to tell people to submit items.1562773548723081297
+                        channel_id = 1562773548723081297 #Bidding Winners
+                        channel = await bot.fetch_channel(channel_id)
+                        # Long ahh message
+                        msg="## YOU HAVE WON :tada: :tada: :tada: \nCongratulations on winning. Please place what you wish to put up for bidding here.\n Please use the format: ``I submit: your item here``\n-# Once you send this message and it is processed successfully, you will be removed from this channel. <@&1562761400776925234>"
+                        await channel.send(msg)
+                        
+            # THATS RIGHT ITS TIME TO YOINKITY SPLOINKETY THESE BIDS EH?
+            if (message.channel.id == 1562769865847078932 or message.channel.id == 1562773548723081297) and message.author.bot == False: #you should add the ltr one that doesent exist lol
+                # boom
+                item = message.content.lower()
+                if "i submit:" in item:
+                    item = item.split(":")[1]
+                    print(item)
+                    user = message.author
+                    guild = message.guild
+                    await bidding_war_submissions(f"{user.id},{item}")
+                
+                    channel_id = 1562773548723081297 #Bidding Winners
+                    channel = await bot.fetch_channel(channel_id)
+                    await channel.send(f"Item submitted for auction. <@{user.id}> you will be violenly expelled from this channel shortly.")
+                    sleep(3)
+                    await remove_role(1562773248008126464,guild,[user.id])
     
     
 
@@ -397,11 +588,6 @@ async def bidding_war_start(interaction: discord.Interaction):
         await interaction.response.send_message(response)
 
 
-
-
-
-
-
 def run_flask():
     app.run(debug=False,use_reloader=False,host="0.0.0.0")
 
@@ -410,4 +596,3 @@ flask_thread.start()
 #print(Fore.RED + "Flask server disabled, uncomment to run again once fixed ⚠️")
 (Fore.GREEN + "Flask server Enabled, comment to disable again")
 bot.run(TOKEN)
-
